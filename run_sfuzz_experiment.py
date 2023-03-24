@@ -65,7 +65,7 @@ def get_targets(benchmark):
         if filename.endswith(".sol"):
             target = os.path.join(benchmark, filename)
             targets.append(target)
-    return targets[0:2]
+    return targets
 
 def fetch_works(targets, MAX_INSTANCE_NUM):
     works = []
