@@ -1,4 +1,5 @@
 import sys, os, subprocess, time
+import json
 import re
 from os import listdir
 from os.path import isfile, join
@@ -45,17 +46,13 @@ def check_cpu_count(MAX_INSTANCE_NUM):
         print("Failed to count the number of CPU cores, abort")
         exit(1)
 
-def decide_outdir(benchmark):
-    if benchmark.endswith("/"):
-        prefix = benchmark + "mythril"
-    else:
-        prefix = benchmark + "/" + "mythril"
+def decide_outdir():
+    prefix = "sFuzz"
     i = 0
     while True:
         i += 1
-        outdir = os.path.join(BASE_DIR, "output")
-        filedir = "%s-%d" % (prefix, i)
-        outdir = os.path.join(outdir, filedir)
+        filedir = "output-%s-%d" % (prefix, i)
+        outdir = os.path.join(BASE_DIR, filedir)
         if not os.path.exists(outdir):
             return outdir
 
@@ -65,7 +62,7 @@ def get_targets(benchmark):
         if filename.endswith(".sol"):
             target = os.path.join(benchmark, filename)
             targets.append(target)
-    return targets[0:2]
+    return targets
 
 def fetch_works(targets, MAX_INSTANCE_NUM):
     works = []
@@ -82,7 +79,7 @@ def spawn_containers(targets):
                 (i, targ, IMAGE_NAME)
         run_cmd(cmd)
 
-def run_fuzzing(benchmark, targets, timelimit, opt):
+def run_fuzzing(targets, timelimit):
     for targ in targets:
         print(targ)
         src = "/home/test/" + targ
@@ -96,13 +93,19 @@ def run_fuzzing(benchmark, targets, timelimit, opt):
 def store_outputs(targets, outdir):
     for targ in targets:
         input_file = targ
-        targ = os.path.basename(targ)
-        cmd = "docker cp %s:/home/test/output/ %s/%s" % (targ, outdir, targ)
+        file_dir = os.path.dirname(targ)
+        file_outdir = os.path.join(outdir, file_dir)
+        if not os.path.exists(file_outdir):
+            os.makedirs(file_outdir)
 
-        print(f"store_output cmd: {cmd}")
-        file_outdir = os.path.join(outdir, targ)
-        os.makedirs(file_outdir)
-        json_file = os.path.join(file_outdir, "output.json")
+        targ = os.path.basename(targ)
+        output_dir = os.path.join(file_outdir, targ)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        cmd = "docker cp %s:/home/test/output/ %s" % (targ, output_dir)
+
+        json_file = os.path.join(output_dir, "output.json")
         f = open(json_file, "w")
         f.write(f'test_file = """{input_file}"""\n\n')
         f.close()
@@ -115,66 +118,52 @@ def remove_prefix(string: str, prefix) -> str:
 
     return new_string
 
-# def parse_mythril_coverage(log_file: str) :
-#     lines = None
-#     with open(log_file, "r", encoding="utf-8") as file:
-#         try:
-#             lines = [line.rstrip() for line in file]
-#         except ValueError:
-#             return []
+def parse_mythril_json_output(output_file: str):
+    if not os.path.exists(output_file):
+        return []
 
-#     count = 1
-#     pair = [(0, 0)]
-#     for line in lines:
-#         match_str = re.search(r"coverage : [0-9]+", line)
-#         if match_str:
-#             coverage = match_str.group()
-#             coverage = remove_prefix(coverage, "coverage : ")
-#             pair.append((count, int(coverage)))
-#             count += 1
-#             result = coverage
+    output = None
+    with open(output_file, "r", encoding="utf-8") as file:
+        try:
+            output = json.load(file)
+        except ValueError:
+            return []
 
-#     return pair
+    try:
+        issues = output.get("issues")
+
+        bugs = []
+
+        for issue in issues:
+            title = issue.get("title")
+            severity = issue.get("severity")
+            start_line = issue.get("lineno")
+            code = issue.get("code")
+            if code is None:
+                end_line = start_line
+            else:
+                end_line = start_line + code.count("\n")
+
+            bug = (title, severity, start_line, end_line)
+            bugs.append(bug)
+
+        return bugs
+    except ValueError:
+        return []
+
+
 
 def interpret_outputs(targets, outdir):
     for targ in targets:
-        targ = os.path.basename(targ)
         file_outdir = os.path.join(outdir, targ)
         output_dir = os.path.join(file_outdir, "output")
-        log_file = os.path.join(output_dir, "log.txt")
-        # stdout_file = os.path.join(output_dir, "stdout.txt")
-        # pairs = parse_mythril_coverage(stdout_file)
-        # print(pairs)
-
-        lines = None
-        with open(log_file, "r", encoding="utf-8") as file:
-            lines = [line.rstrip() for line in file]
-
-        issues = []
-        for line in lines:
-            if "MishandledException" in line:
-                issues.append("UNHANDLED_EXCEPTION");
-
-            if "Reentrancy" in line:
-                issues.append("REENTRANCY");
-
-            if "IntegerBug" in line:
-                issues.append("INTEGER_BUG");
-
-            if "DeletegateCall" in line:
-                issues.append("UNSAFE_DELEGATECALL");
-
-            if "LockEther" in line:
-                issues.append("LOCKING_ETHER");
-
-            if "BlockstateDependency" in line:
-                issues.append("BLOCK_DEPENDENCY");
+        stdout_file = os.path.join(output_dir, "stdout.txt")
+        issues = parse_mythril_json_output(stdout_file)
 
         print(f"issues: {issues}")
         json_file = os.path.join(file_outdir, "output.json")
         f = open(json_file, "a")
         f.write(f'issues = """{issues}"""\n\n')
-        # f.write(f'coverage = """{pairs}"""\n\n')
         f.close
 
 
@@ -193,19 +182,18 @@ def main():
     benchmark = sys.argv[1]
     timelimit = int(sys.argv[2])
     MAX_INSTANCE_NUM = int(sys.argv[3])
-    opt = ""
 
     check_cpu_count(MAX_INSTANCE_NUM)
-    outdir = decide_outdir(benchmark)
+    outdir = decide_outdir()
     print(f"outdir: {outdir}")
     os.makedirs(outdir)
     targets = get_targets(benchmark)
     while len(targets) > 0:
         work_targets = fetch_works(targets, MAX_INSTANCE_NUM)
         spawn_containers(work_targets)
-        run_fuzzing(benchmark, work_targets, timelimit, opt)
+        run_fuzzing(work_targets, timelimit)
         store_outputs(work_targets, outdir)
-        # interpret_outputs(work_targets, outdir)
+        interpret_outputs(work_targets, outdir)
         cleanup_containers(work_targets)
 
 if __name__ == "__main__":

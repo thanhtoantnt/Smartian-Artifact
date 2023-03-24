@@ -84,7 +84,7 @@ def spawn_containers(targets):
                 (i, targ, IMAGE_NAME)
         run_cmd(cmd)
 
-def run_fuzzing(benchmark, targets, timelimit, opt):
+def run_fuzzing(targets, timelimit):
     for targ in targets:
         src = "/home/test/" + targ
         args = "%d %s" % (timelimit, src)
@@ -200,7 +200,6 @@ def main():
     benchmark = sys.argv[1]
     timelimit = int(sys.argv[2])
     MAX_INSTANCE_NUM = int(sys.argv[3])
-    opt = ""
 
     check_cpu_count(MAX_INSTANCE_NUM)
     outdir = decide_outdir()
@@ -210,7 +209,7 @@ def main():
     while len(targets) > 0:
         work_targets = fetch_works(targets, MAX_INSTANCE_NUM)
         spawn_containers(work_targets)
-        run_fuzzing(benchmark, work_targets, timelimit, opt)
+        run_fuzzing(work_targets, timelimit)
         store_outputs(work_targets, outdir)
         interpret_outputs(work_targets, outdir)
         cleanup_containers(work_targets)
