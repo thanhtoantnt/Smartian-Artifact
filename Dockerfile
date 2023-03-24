@@ -29,14 +29,34 @@ RUN mkdir contracts
 
 RUN cp /home/test/tools/sFuzz/sFuzz/build/fuzzer/fuzzer /home/test/tools/sFuzz/fuzzer
 
+RUN pip install lark --upgrade
+RUN pip install node-semver
+RUN pip install semantic-version
+
+RUN apt install -y libsqlite3-0 libsqlite3-dev
+RUN apt install -y apt-utils
+RUN apt install -y locales
+RUN apt install -y python3-setuptools
+RUN apt install -y software-properties-common
+RUN add-apt-repository -y ppa:ethereum/ethereum
+RUN apt update
+RUN apt install -y solc libssl-dev pandoc wget
+
+WORKDIR /home/test/tools/mythril
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.en
+ENV LC_ALL en_US.UTF-8
+
+RUN python3 -m pip install wheel
+RUN git clone https://github.com/ConsenSys/mythril.git
+WORKDIR /home/test/tools/mythril/mythril
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install -r requirements.txt
+
 # Add scripts for each tool
 COPY ./docker-setup/tool-scripts/ /home/test/scripts
 
 ### Prepare benchmarks
 COPY ./benchmarks /home/test/benchmarks
-
-RUN pip install lark --upgrade
-RUN pip install node-semver
-RUN pip install semantic-version
 
 ENTRYPOINT [ "/bin/bash" ]
