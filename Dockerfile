@@ -35,4 +35,8 @@ COPY --chown=test:test ./docker-setup/tool-scripts/ /home/test/scripts
 ### Prepare benchmarks
 COPY --chown=test:test ./benchmarks /home/test/benchmarks
 
+RUN pip install lark --upgrade
+RUN pip install node-semver
+RUN pip install semantic-version
+
 ENTRYPOINT [ "/bin/bash" ]

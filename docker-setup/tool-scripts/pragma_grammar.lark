@@ -1,0 +1,31 @@
+// Grammar to parse the `pragma` string of Solidity smart contracts.
+//
+// NOTE:
+//   - rule: `_rule` means inlining this rule into in their containing rule.
+//   - terminal: `_TERM` means filter out this terminal
+
+source_unit: (solidity_pragma? non_solidity_pragma?)*
+
+solidity_pragma: _PRAGMA _SOLIDITY pragma_version_info _SEMICOLON
+
+pragma_version_info: /[^;]+/
+
+// Rules and terminals cannot be used inside regular expression.
+non_solidity_pragma: /(((?!pragma *solidity).)|\n|\r)+/s
+
+_PRAGMA: "pragma"
+_SOLIDITY: "solidity"
+_SEMICOLON: ";"
+
+COMMENT: _COMMENT_LINE | _COMMENT_BLOCK
+%ignore COMMENT
+
+_COMMENT_LINE: _COMMENT_LINE_START /[^\n]*/ NEWLINE
+_COMMENT_BLOCK: _COMMENT_BLOCK_START  /(((?!\*\/).)|\n|\r)+/ _COMMENT_BLOCK_END
+_COMMENT_LINE_START: "//"
+_COMMENT_BLOCK_START: "/*"
+_COMMENT_BLOCK_END: "*/"
+
+%import common.NEWLINE
+%import common.WS
+%ignore WS
