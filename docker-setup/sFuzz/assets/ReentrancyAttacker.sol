@@ -1,5 +1,3 @@
-pragma solidity ^0.4.2;
-
 contract ReentrancyAttacker {
       uint counter = 0;
       function() payable {

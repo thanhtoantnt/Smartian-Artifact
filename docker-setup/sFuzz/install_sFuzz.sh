@@ -5,10 +5,10 @@ set -e
 cd /home/test/tools/sFuzz
 
 # Download and patch sFuzz
-git clone --recursive https://github.com/duytai/sFuzz
+git clone --recursive https://github.com/thanhtoantnt/sFuzz.git
 cd /home/test/tools/sFuzz/sFuzz
-git checkout eb690d4287af4c7dc0ecfce7447e4b4462775d55
-patch -p1 < ../sFuzz.patch
+# git checkout eb690d4287af4c7dc0ecfce7447e4b4462775d55
+# patch -p1 < ../sFuzz.patch
 
 # Install dependencies
 sudo ./scripts/install_cmake.sh --prefix /usr/local
