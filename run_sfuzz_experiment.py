@@ -53,7 +53,9 @@ def decide_outdir(benchmark):
     i = 0
     while True:
         i += 1
-        outdir = os.path.join(BASE_DIR, "output", "%s-%d" % (prefix, i))
+        outdir = os.path.join(BASE_DIR, "output")
+        filedir = "%s-%d" % (prefix, i)
+        outdir = os.path.join(outdir, filedir)
         if not os.path.exists(outdir):
             return outdir
 
@@ -63,7 +65,7 @@ def get_targets(benchmark):
         if filename.endswith(".sol"):
             target = os.path.join(benchmark, filename)
             targets.append(target)
-    return targets
+    return targets[0:2]
 
 def fetch_works(targets, MAX_INSTANCE_NUM):
     works = []
@@ -107,6 +109,12 @@ def store_outputs(targets, outdir):
 
         run_cmd(cmd)
 
+def remove_prefix(string: str, prefix) -> str:
+    if string.startswith(prefix):
+        new_string = string[len(prefix):]
+
+    return new_string
+
 def parse_sfuzz_coverage(log_file: str) :
     lines = None
     with open(log_file, "r", encoding="utf-8") as file:
@@ -121,7 +129,7 @@ def parse_sfuzz_coverage(log_file: str) :
         match_str = re.search(r"coverage : [0-9]+", line)
         if match_str:
             coverage = match_str.group()
-            coverage = coverage.removeprefix("coverage : ")
+            coverage = remove_prefix(coverage, "coverage : ")
             pair.append((count, int(coverage)))
             count += 1
             result = coverage
@@ -166,7 +174,7 @@ def interpret_outputs(targets, outdir):
         json_file = os.path.join(file_outdir, "output.json")
         f = open(json_file, "a")
         f.write(f'issues = """{issues}"""\n\n')
-        f.write(f'coverage = """{issues}"""\n\n')
+        f.write(f'coverage = """{pairs}"""\n\n')
         f.close
 
 
@@ -188,9 +196,9 @@ def main():
     opt = ""
 
     check_cpu_count(MAX_INSTANCE_NUM)
-    outdir = decide_outdir(os.path.basename(benchmark))
-    os.makedirs(outdir)
+    outdir = decide_outdir(benchmark)
     print(f"outdir: {outdir}")
+    os.makedirs(outdir)
     targets = get_targets(benchmark)
     while len(targets) > 0:
         work_targets = fetch_works(targets, MAX_INSTANCE_NUM)
