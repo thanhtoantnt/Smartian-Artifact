@@ -43,10 +43,6 @@ RUN apt update
 RUN apt install -y solc libssl-dev pandoc wget
 
 WORKDIR /home/test/tools/mythril
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.en
-ENV LC_ALL en_US.UTF-8
-
 RUN python3 -m pip install wheel
 RUN git clone https://github.com/ConsenSys/mythril.git
 WORKDIR /home/test/tools/mythril/mythril
