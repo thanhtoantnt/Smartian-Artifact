@@ -56,17 +56,23 @@ def decide_outdir():
         if not os.path.exists(outdir):
             return outdir
 
-def get_targets(benchmark):
-    targets = []
-    for filename in os.listdir(benchmark):
-        if filename.endswith(".sol"):
-            target = os.path.join(benchmark, filename)
-            targets.append(target)
-    return targets
+def get_targets(path):
+    # Initialize an empty list to store file paths
+    file_paths = []
+
+    # Iterate through all files and directories in the given path
+    for root, _, files in os.walk(path):
+        for filename in files:
+            # Add the file path to the list
+            if filename.endswith(".sol"):
+                file_paths.append(os.path.join(root, filename))
+
+    # Return the list of file paths
+    return file_paths
 
 def fetch_works(targets, MAX_INSTANCE_NUM):
     works = []
-    for i in range(MAX_INSTANCE_NUM):
+    for _ in range(MAX_INSTANCE_NUM):
         if len(targets) <= 0:
             break
         works.append(targets.pop(0))
