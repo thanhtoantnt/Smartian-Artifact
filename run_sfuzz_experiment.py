@@ -45,17 +45,13 @@ def check_cpu_count(MAX_INSTANCE_NUM):
         print("Failed to count the number of CPU cores, abort")
         exit(1)
 
-def decide_outdir(benchmark):
-    if benchmark.endswith("/"):
-        prefix = benchmark + "sFuzz"
-    else:
-        prefix = benchmark + "/" + "sFuzz"
+def decide_outdir():
+    prefix = "sFuzz"
     i = 0
     while True:
         i += 1
-        outdir = os.path.join(BASE_DIR, "output")
-        filedir = "%s-%d" % (prefix, i)
-        outdir = os.path.join(outdir, filedir)
+        filedir = "output-%s-%d" % (prefix, i)
+        outdir = os.path.join(BASE_DIR, filedir)
         if not os.path.exists(outdir):
             return outdir
 
@@ -90,25 +86,29 @@ def spawn_containers(targets):
 
 def run_fuzzing(benchmark, targets, timelimit, opt):
     for targ in targets:
-        print(targ)
         src = "/home/test/" + targ
         args = "%d %s" % (timelimit, src)
         script = "/home/test/scripts/run_sFuzz.sh"
         cmd = "%s %s" % (script, args)
-        print(cmd)
         run_cmd_in_docker(os.path.basename(targ), cmd)
     time.sleep(timelimit + 2)
 
 def store_outputs(targets, outdir):
     for targ in targets:
         input_file = targ
-        targ = os.path.basename(targ)
-        cmd = "docker cp %s:/home/test/output/ %s/%s" % (targ, outdir, targ)
+        file_dir = os.path.dirname(targ)
+        file_outdir = os.path.join(outdir, file_dir)
+        if not os.path.exists(file_outdir):
+            os.makedirs(file_outdir)
 
-        print(f"store_output cmd: {cmd}")
-        file_outdir = os.path.join(outdir, targ)
-        os.makedirs(file_outdir)
-        json_file = os.path.join(file_outdir, "output.json")
+        targ = os.path.basename(targ)
+        output_dir = os.path.join(file_outdir, targ)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        cmd = "docker cp %s:/home/test/output/ %s" % (targ, output_dir)
+
+        json_file = os.path.join(output_dir, "output.json")
         f = open(json_file, "w")
         f.write(f'test_file = """{input_file}"""\n\n')
         f.close()
@@ -122,6 +122,9 @@ def remove_prefix(string: str, prefix) -> str:
     return new_string
 
 def parse_sfuzz_coverage(log_file: str) :
+    if not os.path.exists(log_file):
+        return []
+
     lines = None
     with open(log_file, "r", encoding="utf-8") as file:
         try:
@@ -144,17 +147,16 @@ def parse_sfuzz_coverage(log_file: str) :
 
 def interpret_outputs(targets, outdir):
     for targ in targets:
-        targ = os.path.basename(targ)
         file_outdir = os.path.join(outdir, targ)
         output_dir = os.path.join(file_outdir, "output")
         log_file = os.path.join(output_dir, "log.txt")
         stdout_file = os.path.join(output_dir, "stdout.txt")
         pairs = parse_sfuzz_coverage(stdout_file)
-        print(pairs)
 
-        lines = None
-        with open(log_file, "r", encoding="utf-8") as file:
-            lines = [line.rstrip() for line in file]
+        lines = []
+        if os.path.exists(log_file):
+            with open(log_file, "r", encoding="utf-8") as file:
+                lines = [line.rstrip() for line in file]
 
         issues = []
         for line in lines:
@@ -176,7 +178,6 @@ def interpret_outputs(targets, outdir):
             if "BlockstateDependency" in line:
                 issues.append("BLOCK_DEPENDENCY");
 
-        print(f"issues: {issues}")
         json_file = os.path.join(file_outdir, "output.json")
         f = open(json_file, "a")
         f.write(f'issues = """{issues}"""\n\n')
@@ -202,8 +203,8 @@ def main():
     opt = ""
 
     check_cpu_count(MAX_INSTANCE_NUM)
-    outdir = decide_outdir(benchmark)
-    print(f"outdir: {outdir}")
+    outdir = decide_outdir()
+    # print(f"outdir: {outdir}")
     os.makedirs(outdir)
     targets = get_targets(benchmark)
     while len(targets) > 0:
