@@ -30,10 +30,10 @@ RUN mkdir contracts
 RUN cp /home/test/tools/sFuzz/sFuzz/build/fuzzer/fuzzer /home/test/tools/sFuzz/fuzzer
 
 # Add scripts for each tool
-COPY --chown=test:test ./docker-setup/tool-scripts/ /home/test/scripts
+COPY ./docker-setup/tool-scripts/ /home/test/scripts
 
 ### Prepare benchmarks
-COPY --chown=test:test ./benchmarks /home/test/benchmarks
+COPY ./benchmarks /home/test/benchmarks
 
 RUN pip install lark --upgrade
 RUN pip install node-semver
