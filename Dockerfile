@@ -48,12 +48,6 @@ WORKDIR /home/test/tools/mythril/mythril
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt
 
-# Add scripts for each tool
-COPY ./docker-setup/tool-scripts/ /home/test/scripts
-
-### Prepare benchmarks
-COPY ./benchmarks /home/test/benchmarks
-
 WORKDIR /home
 RUN apt -y install sudo
 
@@ -69,5 +63,10 @@ RUN git clone https://github.com/sbip-sg/ConFuzzius.git
 WORKDIR /home/test/tools/confuzzius/ConFuzzius
 RUN pip install -r /home/test/tools/confuzzius/ConFuzzius/fuzzer/requirements.txt
 
+# Add scripts for each tool
+COPY ./docker-setup/tool-scripts/ /home/test/scripts
+
+### Prepare benchmarks
+COPY ./benchmarks /home/test/benchmarks
 
 ENTRYPOINT [ "/bin/bash" ]
