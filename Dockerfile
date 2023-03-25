@@ -39,7 +39,6 @@ RUN apt install -y locales
 RUN apt install -y python3-setuptools
 RUN apt install -y software-properties-common
 RUN add-apt-repository -y ppa:ethereum/ethereum
-RUN apt update
 RUN apt install -y solc libssl-dev pandoc wget
 
 WORKDIR /home/test/tools/mythril
@@ -54,5 +53,21 @@ COPY ./docker-setup/tool-scripts/ /home/test/scripts
 
 ### Prepare benchmarks
 COPY ./benchmarks /home/test/benchmarks
+
+WORKDIR /home
+RUN apt -y install sudo
+
+RUN git clone https://github.com/Z3Prover/z3.git z3
+WORKDIR /home/z3
+RUN python3 scripts/mk_make.py
+WORKDIR /home/z3/build
+RUN make
+RUN sudo make install
+
+WORKDIR /home/test/tools/confuzzius
+RUN git clone https://github.com/sbip-sg/ConFuzzius.git
+WORKDIR /home/test/tools/confuzzius/ConFuzzius
+RUN pip install -r /home/test/tools/confuzzius/ConFuzzius/fuzzer/requirements.txt
+
 
 ENTRYPOINT [ "/bin/bash" ]
