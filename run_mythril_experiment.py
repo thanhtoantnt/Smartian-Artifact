@@ -47,7 +47,7 @@ def check_cpu_count(MAX_INSTANCE_NUM):
         exit(1)
 
 def decide_outdir():
-    prefix = "sFuzz"
+    prefix = "mythril"
     i = 0
     while True:
         i += 1
