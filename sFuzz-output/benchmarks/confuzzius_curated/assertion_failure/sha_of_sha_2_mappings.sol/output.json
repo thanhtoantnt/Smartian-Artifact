@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/sha_of_sha_2_mappings.sol"""
+
+issues = """['INTEGER_BUG', 'INTEGER_BUG']"""
+
+coverage = """[]"""
+

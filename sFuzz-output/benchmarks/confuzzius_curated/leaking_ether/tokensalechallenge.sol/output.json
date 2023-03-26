@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/leaking_ether/tokensalechallenge.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

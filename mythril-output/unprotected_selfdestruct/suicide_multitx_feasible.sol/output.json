@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/unprotected_selfdestruct/suicide_multitx_feasible.sol"""
+
+issues = """[]"""
+

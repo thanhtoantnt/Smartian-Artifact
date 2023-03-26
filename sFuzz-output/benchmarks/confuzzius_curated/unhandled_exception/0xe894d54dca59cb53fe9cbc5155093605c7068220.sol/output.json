@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/unhandled_exception/0xe894d54dca59cb53fe9cbc5155093605c7068220.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

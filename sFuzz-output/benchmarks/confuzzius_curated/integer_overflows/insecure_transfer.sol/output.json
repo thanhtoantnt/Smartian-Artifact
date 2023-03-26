@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/integer_overflows/insecure_transfer.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

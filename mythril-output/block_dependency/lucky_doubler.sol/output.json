@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/block_dependency/lucky_doubler.sol"""
+
+issues = """[]"""
+

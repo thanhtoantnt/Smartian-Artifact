@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/block_dependency/roulette.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/reentrancy/etherbank.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

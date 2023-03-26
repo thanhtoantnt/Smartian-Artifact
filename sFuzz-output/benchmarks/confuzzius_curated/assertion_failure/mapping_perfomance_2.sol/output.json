@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/mapping_perfomance_2.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

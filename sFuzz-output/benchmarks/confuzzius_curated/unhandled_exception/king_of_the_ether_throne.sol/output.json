@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/unhandled_exception/king_of_the_ether_throne.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

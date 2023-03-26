@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/reentrancy/modifier_reentrancy.sol"""
+
+issues = """[]"""
+

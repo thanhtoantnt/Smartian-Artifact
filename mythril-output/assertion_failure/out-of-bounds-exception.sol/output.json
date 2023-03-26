@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/out-of-bounds-exception.sol"""
+
+issues = """[]"""
+

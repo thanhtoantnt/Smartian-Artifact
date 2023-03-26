@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/unsafe_delegatecall/proxy_pattern_false_positive.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

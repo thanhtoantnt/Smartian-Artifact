@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/integer_overflows/overflow_simple_add.sol"""
+
+issues = """[]"""
+

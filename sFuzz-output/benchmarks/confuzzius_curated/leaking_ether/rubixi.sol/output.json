@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/leaking_ether/rubixi.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

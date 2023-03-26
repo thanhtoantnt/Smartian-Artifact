@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/constructor_create_modifiable.sol"""
+
+issues = """[]"""
+
+coverage = """[(0, 0)]"""
+

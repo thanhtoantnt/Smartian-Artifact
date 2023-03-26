@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/transaction_order_dependency/odds_and_evens.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

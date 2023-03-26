@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/leaking_ether/wallet_02_refund_nosub.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/integer_overflows/integer_overflow_mapping_sym_1.sol"""
+
+issues = """[]"""
+

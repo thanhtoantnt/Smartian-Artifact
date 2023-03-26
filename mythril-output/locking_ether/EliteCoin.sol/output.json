@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/locking_ether/EliteCoin.sol"""
+
+issues = """[]"""
+

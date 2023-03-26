@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/integer_overflows/BECToken.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/reentrancy/spank_chain_payment.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

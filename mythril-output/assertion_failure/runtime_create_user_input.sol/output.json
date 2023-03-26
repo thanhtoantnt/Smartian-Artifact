@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/runtime_create_user_input.sol"""
+
+issues = """[]"""
+

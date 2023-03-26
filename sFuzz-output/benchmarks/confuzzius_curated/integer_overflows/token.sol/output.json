@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/integer_overflows/token.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

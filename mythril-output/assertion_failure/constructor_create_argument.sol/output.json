@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/assertion_failure/constructor_create_argument.sol"""
+
+issues = """[]"""
+

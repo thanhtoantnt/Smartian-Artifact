@@ -1,0 +1,4 @@
+test_file = """benchmarks/confuzzius_curated/transaction_order_dependency/eth_tx_order_dependence_minimal.sol"""
+
+issues = """[]"""
+

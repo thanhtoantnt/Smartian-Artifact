@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/unhandled_exception/lotto.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

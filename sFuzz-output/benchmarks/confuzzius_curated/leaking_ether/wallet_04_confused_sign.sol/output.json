@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/leaking_ether/wallet_04_confused_sign.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+

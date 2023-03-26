@@ -1,0 +1,6 @@
+test_file = """benchmarks/confuzzius_curated/block_dependency/random_number_generator.sol"""
+
+issues = """[]"""
+
+coverage = """[]"""
+
