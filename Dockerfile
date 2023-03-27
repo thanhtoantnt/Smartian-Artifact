@@ -17,6 +17,7 @@ RUN mkdir /home/test/tools/sFuzz
 WORKDIR /home/test/tools/sFuzz
 RUN git clone --recursive https://github.com/thanhtoantnt/sFuzz.git
 WORKDIR sFuzz
+RUN git pull
 RUN ./scripts/install_deps.sh
 RUN mkdir build
 WORKDIR build
