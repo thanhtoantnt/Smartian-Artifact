@@ -2,5 +2,5 @@ test_file = """benchmarks/confuzzius_curated/locking_ether/EscrowMyEtherEntityDB
 
 issues = """[]"""
 
-coverage = """[]"""
+coverage = """[(0, 0)]"""
 
