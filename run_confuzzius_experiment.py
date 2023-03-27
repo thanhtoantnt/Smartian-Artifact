@@ -160,23 +160,38 @@ def interpret_outputs(targets, outdir):
 
         issues = []
         for line in lines:
-            if "MishandledException" in line:
-                issues.append("UNHANDLED_EXCEPTION");
-
             if "Reentrancy" in line:
                 issues.append("REENTRANCY");
 
-            if "IntegerBug" in line:
+            if "Assertion Failure" in line:
+                issues.append("ASSERTION_FAILURE");
+
+            if "Integer Overflow" in line:
                 issues.append("INTEGER_BUG");
 
-            if "DeletegateCall" in line:
-                issues.append("UNSAFE_DELEGATECALL");
+            if "Integer Underflow" in line:
+                issues.append("INTEGER_BUG");
 
-            if "LockEther" in line:
-                issues.append("LOCKING_ETHER");
+            if "Transaction Order Dependency" in line:
+                issues.append("TRANSACTION_ORDER_DEPENDENCY");
 
-            if "BlockstateDependency" in line:
+            if "Block Dependency" in line:
                 issues.append("BLOCK_DEPENDENCY");
+
+            if "Leaking Ether" in line:
+                issues.append("LEAKING_ETHER")
+
+            if "Locking Ether" in line:
+                issues.append("LOCKING_ETHER")
+
+            if "Unchecked Return Value" in line:
+                issues.append("UNHANDLED_EXCEPTION")
+
+            if "Unprotected Selfdestruct" in line:
+                issues.append("UNSAFE_SELFDESTRUCT")
+
+            if "Unsafe Delegatecall" in line:
+                issues.append("UNSAFE_DELEGATECALL")
 
         json_file = os.path.join(file_outdir, "output.json")
         f = open(json_file, "a")
