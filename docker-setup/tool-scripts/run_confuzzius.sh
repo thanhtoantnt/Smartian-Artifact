@@ -19,7 +19,7 @@ mkdir -p $WORKDIR/output/bugs
 touch $WORKDIR/output/log.txt
 # Run mythril
 
-python3.9 $TOOLDIR/ConFuzzius/fuzzer/main.py -s $2 --solc "v$VERSION" -t $1 > \
+python3 $TOOLDIR/ConFuzzius/fuzzer/main.py -s $2 --solc "v$VERSION" --evm byzantium -t $1 > \
                       $WORKDIR/output/stdout.txt 2>&1
 
 cp -r $WORKDIR/output/ /home/test/

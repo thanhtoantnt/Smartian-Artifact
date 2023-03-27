@@ -1,4 +1,7 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
+
+WORKDIR /root/
+ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN apt -y update
 RUN apt -y install build-essential
@@ -10,24 +13,6 @@ RUN apt -y install python3-pip
 RUN pip3 install solc-select
 RUN solc-select install 0.4.16
 RUN cp ~/.solc-select/artifacts/solc-0.4.16/solc-0.4.16 /bin/
-
-RUN mkdir /home/test
-RUN mkdir /home/test/tools/
-RUN mkdir /home/test/tools/sFuzz
-WORKDIR /home/test/tools/sFuzz
-RUN git clone --recursive https://github.com/thanhtoantnt/sFuzz.git
-WORKDIR sFuzz
-RUN ./scripts/install_deps.sh
-RUN mkdir build
-WORKDIR build
-RUN cmake ../
-WORKDIR fuzzer
-RUN cp ../../assets . -r
-RUN make
-RUN mkdir output
-RUN mkdir contracts
-
-RUN cp /home/test/tools/sFuzz/sFuzz/build/fuzzer/fuzzer /home/test/tools/sFuzz/fuzzer
 
 RUN pip install lark --upgrade
 RUN pip install node-semver
@@ -41,13 +26,6 @@ RUN apt install -y software-properties-common
 RUN add-apt-repository -y ppa:ethereum/ethereum
 RUN apt install -y solc libssl-dev pandoc wget
 
-WORKDIR /home/test/tools/mythril
-RUN python3 -m pip install wheel
-RUN git clone https://github.com/ConsenSys/mythril.git
-WORKDIR /home/test/tools/mythril/mythril
-RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install -r requirements.txt
-
 WORKDIR /home
 RUN apt -y install sudo
 
@@ -58,12 +36,32 @@ WORKDIR /home/z3/build
 RUN make
 RUN sudo make install
 
+# sFuzz
+# RUN mkdir /home/test
+# RUN mkdir /home/test/tools/
+# RUN mkdir /home/test/tools/sFuzz
+# WORKDIR /home/test/tools/sFuzz
+# RUN git clone --recursive https://github.com/thanhtoantnt/sFuzz.git
+# WORKDIR sFuzz
+# RUN ./scripts/install_deps.sh
+# RUN mkdir build
+# WORKDIR build
+# RUN cmake ../
+# WORKDIR fuzzer
+# RUN cp ../../assets . -r
+# RUN make
+# RUN mkdir output
+# RUN mkdir contracts
+# RUN cp /home/test/tools/sFuzz/sFuzz/build/fuzzer/fuzzer /home/test/tools/sFuzz/fuzzer
+
+# WORKDIR /home/test/tools/mythril
+# RUN python3 -m pip install wheel
+# RUN git clone https://github.com/ConsenSys/mythril.git
+# WORKDIR /home/test/tools/mythril/mythril
+# RUN python3 -m pip install --upgrade pip
+# RUN python3 -m pip install -r requirements.txt
+
 WORKDIR /home/test/tools/confuzzius
-RUN sudo wget https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tgz && \
-    sudo tar xzf Python-3.9.5.tgz && \
-    cd Python-3.9.5 && \
-    sudo ./configure --enable-optimizations && \
-    sudo make install
 RUN git clone https://github.com/sbip-sg/ConFuzzius.git
 WORKDIR /home/test/tools/confuzzius/ConFuzzius
 RUN git pull
