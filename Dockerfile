@@ -59,8 +59,14 @@ RUN make
 RUN sudo make install
 
 WORKDIR /home/test/tools/confuzzius
+RUN sudo wget https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tgz && \
+    sudo tar xzf Python-3.9.5.tgz && \
+    cd Python-3.9.5 && \
+    sudo ./configure --enable-optimizations && \
+    sudo make install
 RUN git clone https://github.com/sbip-sg/ConFuzzius.git
 WORKDIR /home/test/tools/confuzzius/ConFuzzius
+RUN git pull
 RUN pip install -r /home/test/tools/confuzzius/ConFuzzius/fuzzer/requirements.txt
 
 # Add scripts for each tool
