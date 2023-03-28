@@ -67,10 +67,11 @@ WORKDIR /home/test/tools/confuzzius/ConFuzzius
 RUN git pull
 RUN pip install -r /home/test/tools/confuzzius/ConFuzzius/fuzzer/requirements.txt
 
-# Add scripts for each tool
-COPY ./docker-setup/tool-scripts/ /home/test/scripts
-
 ### Prepare benchmarks
 COPY ./benchmarks /home/test/benchmarks
+COPY ./examples /home/test/examples
+
+# Add scripts for each tool
+COPY ./docker-setup/tool-scripts/ /home/test/scripts
 
 ENTRYPOINT [ "/bin/bash" ]

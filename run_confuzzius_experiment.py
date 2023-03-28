@@ -1,5 +1,6 @@
 import sys, os, subprocess, time
 import re
+import json
 from os import listdir
 from os.path import isfile, join
 from typing import List, Union
@@ -87,7 +88,8 @@ def spawn_containers(targets):
 def run_fuzzing(targets, timelimit):
     for targ in targets:
         src = "/home/test/" + targ
-        args = "%d %s" % (timelimit, src)
+        output = src + ".json"
+        args = "%d %s %s" % (timelimit, src, output)
         script = "/home/test/scripts/run_confuzzius.sh"
         cmd = "%s %s" % (script, args)
         run_cmd_in_docker(os.path.basename(targ), cmd)
@@ -121,82 +123,45 @@ def remove_prefix(string: str, prefix) -> str:
 
     return new_string
 
-def parse_confuzzius_coverage(log_file: str) :
-    if not os.path.exists(log_file):
-        return []
-
-    lines = None
-    with open(log_file, "r", encoding="utf-8") as file:
-        try:
-            lines = [line.rstrip() for line in file]
-        except ValueError:
-            return []
-
-    count = 1
-    pair = [(0, 0)]
-    for line in lines:
-        match_str = re.search(r"coverage : [0-9]+", line)
-        if match_str:
-            coverage = match_str.group()
-            coverage = remove_prefix(coverage, "coverage : ")
-            pair.append((count, int(coverage)))
-            count += 1
-            result = coverage
-
-    return pair
-
 def interpret_outputs(targets, outdir):
-    for targ in targets:
-        file_outdir = os.path.join(outdir, targ)
-        output_dir = os.path.join(file_outdir, "output")
-        log_file = os.path.join(output_dir, "log.txt")
-        stdout_file = os.path.join(output_dir, "stdout.txt")
-        pairs = parse_confuzzius_coverage(stdout_file)
+    for target in targets:
+        target_outdir = os.path.join(outdir, target)
+        output_dir = os.path.join(target_outdir, "output")
+        output_file = os.path.join(output_dir, os.path.basename(target) + ".json")
+        output = None
 
-        lines = []
-        if os.path.exists(log_file):
-            with open(log_file, "r", encoding="utf-8") as file:
-                lines = [line.rstrip() for line in file]
+        with open(output_file, "r", encoding="utf-8") as file:
+            try:
+                output = json.load(file)
+            except ValueError:
+                return;
+
+        if output is None:
+            return;
 
         issues = []
-        for line in lines:
-            if "Reentrancy" in line:
-                issues.append("REENTRANCY");
+        coverage = []
+        all_results = list(output.values())
+        results = all_results[0]
+        error_list = results.get("errors")
+        generations = results.get("generations")
+        errors = list(error_list.values())
 
-            if "Assertion Failure" in line:
-                issues.append("ASSERTION_FAILURE");
+        for error_desc in errors:
+            error = error_desc[0]
+            issue = error.get("type")
+            issues.append(issue)
 
-            if "Integer Overflow" in line:
-                issues.append("INTEGER_BUG");
+        for generation in generations:
+            code_coverage = generation.get("code_coverage")
+            branch_coverage = generation.get("branch_coverage")
+            coverage.append((code_coverage, branch_coverage))
 
-            if "Integer Underflow" in line:
-                issues.append("INTEGER_BUG");
-
-            if "Transaction Order Dependency" in line:
-                issues.append("TRANSACTION_ORDER_DEPENDENCY");
-
-            if "Block Dependency" in line:
-                issues.append("BLOCK_DEPENDENCY");
-
-            if "Leaking Ether" in line:
-                issues.append("LEAKING_ETHER")
-
-            if "Locking Ether" in line:
-                issues.append("LOCKING_ETHER")
-
-            if "Unchecked Return Value" in line:
-                issues.append("UNHANDLED_EXCEPTION")
-
-            if "Unprotected Selfdestruct" in line:
-                issues.append("UNSAFE_SELFDESTRUCT")
-
-            if "Unsafe Delegatecall" in line:
-                issues.append("UNSAFE_DELEGATECALL")
-
-        json_file = os.path.join(file_outdir, "output.json")
+        json_file = os.path.join(target_outdir, "output.json")
         f = open(json_file, "a")
         f.write(f'issues = """{issues}"""\n\n')
-        f.write(f'coverage = """{pairs}"""\n\n')
+        print(f'issues = """{issues}"""\n\n')
+        f.write(f'coverage = """{coverage}"""\n\n')
         f.close
 
 
@@ -218,7 +183,7 @@ def main():
 
     check_cpu_count(MAX_INSTANCE_NUM)
     outdir = decide_outdir()
-    # print(f"outdir: {outdir}")
+    print(f"outdir: {outdir}")
     os.makedirs(outdir)
     targets = get_targets(benchmark)
     while len(targets) > 0:
